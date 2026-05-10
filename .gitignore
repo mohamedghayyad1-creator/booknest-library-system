@@ -1,0 +1,4 @@
+node_modules/
+backend/database/booknest.db
+.env
+.DS_Store
