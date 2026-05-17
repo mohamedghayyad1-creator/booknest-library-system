@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BookNest Library System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>BookNest</h1>
+      <p>Smart Library and Reading Progress System</p>
+    </div>
+    <a href="/api-docs" target="_blank" class="swagger-link">Swagger API</a>
+  </header>
+
+  <main class="container">
+    <section class="dashboard" id="dashboard"></section>
+
+    <section class="grid">
+      <div class="panel">
+        <h2 id="formTitle">Add Book</h2>
+        <form id="bookForm">
+          <input type="hidden" id="bookId">
+          <div class="two-cols">
+            <label>Title<input id="title" required minlength="2"></label>
+            <label>Author<input id="author" required minlength="2"></label>
+          </div>
+          <div class="two-cols">
+            <label>Category<select id="categoryId"></select></label>
+            <label>ISBN<input id="isbn"></label>
+          </div>
+          <div class="two-cols">
+            <label>Total Pages<input id="totalPages" type="number" min="1" required></label>
+            <label>Current Page<input id="currentPage" type="number" min="0" value="0" required></label>
+          </div>
+          <div class="two-cols">
+            <label>Status
+              <select id="status">
+                <option>Want to Read</option>
+                <option>Reading</option>
+                <option>Completed</option>
+                <option>On Hold</option>
+                <option>Borrowed</option>
+              </select>
+            </label>
+            <label>Priority
+              <select id="priority">
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
+              </select>
+            </label>
+          </div>
+          <div class="two-cols">
+            <label>Rating<input id="rating" type="number" min="1" max="5"></label>
+            <label>Start Date<input id="startDate" type="date"></label>
+          </div>
+          <label>Finish Date<input id="finishDate" type="date"></label>
+          <label>Notes<textarea id="notes" rows="3"></textarea></label>
+          <div class="buttons">
+            <button type="submit" class="primary">Save Book</button>
+            <button type="button" id="cancelEdit">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h2>Categories</h2>
+        <form id="categoryForm" class="inline-form">
+          <input id="categoryName" placeholder="New category" required>
+          <button class="primary">Add</button>
+        </form>
+        <div id="categoriesList" class="small-list"></div>
+
+        <h2>Borrowing</h2>
+        <form id="borrowingForm">
+          <select id="borrowBookId" required></select>
+          <input id="borrowerName" placeholder="Borrower name" required>
+          <input id="borrowDate" type="date" required>
+          <input id="returnDate" type="date">
+          <select id="borrowStatus">
+            <option>Borrowed</option>
+            <option>Returned</option>
+          </select>
+          <input id="borrowNotes" placeholder="Notes">
+          <button class="primary">Save Borrowing</button>
+        </form>
+        <div id="borrowingsList" class="small-list"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="list-header">
+        <h2>Books</h2>
+        <div class="filters">
+          <input id="search" placeholder="Search title, author, ISBN">
+          <select id="filterCategory"><option value="">All Categories</option></select>
+          <select id="filterStatus">
+            <option value="">All Status</option>
+            <option>Want to Read</option>
+            <option>Reading</option>
+            <option>Completed</option>
+            <option>On Hold</option>
+            <option>Borrowed</option>
+          </select>
+          <select id="filterPriority">
+            <option value="">All Priority</option>
+            <option>Low</option>
+            <option>Medium</option>
+            <option>High</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th><th>Author</th><th>Category</th><th>Status</th><th>Priority</th><th>Progress</th><th>Rating</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="booksTable"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
