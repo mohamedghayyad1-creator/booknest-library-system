@@ -1,24 +1,21 @@
 # BookNest - Smart Library and Reading Progress System
 
-BookNest is a web-based library management system that will help users organize books, categories, reading progress, and borrowing records.
+BookNest is a web-based CRUD application for managing a personal library.  
+The system helps users organize books, categories, reading progress, and borrowing records through a simple web interface.
 
-## Project Idea
+## Features
 
-The system will allow users to manage a personal or study library using a simple web interface.
-
-## Planned Features
-
-- Manage books
-- Manage categories
+- Add, view, update, and delete books
+- Manage book categories
 - Track reading progress
 - Search and filter books
 - Manage borrowing records
-- Show dashboard statistics
-- Provide REST API endpoints
-- Add Swagger API documentation
-- Add unit tests for business logic
+- View dashboard statistics
+- RESTful API using JSON
+- Swagger API documentation
+- Basic unit testing
 
-## Technologies
+## Technologies Used
 
 - HTML
 - CSS
@@ -29,6 +26,9 @@ The system will allow users to manage a personal or study library using a simple
 - Swagger
 - Jest
 
-## Project Status
+## How to Run
 
-Initial project setup completed.
+Install dependencies:
+
+```bash
+npm install
