@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const setupSwagger = require('./swagger');
+const authMiddleware = require('./middleware/authMiddleware');
+const authRoutes = require('./routes/authRoutes');
 const bookRoutes = require('./routes/bookRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const borrowingRoutes = require('./routes/borrowingRoutes');
@@ -15,10 +17,11 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 setupSwagger(app);
 
-app.use('/api/books', bookRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/borrowings', borrowingRoutes);
-app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/books', authMiddleware, bookRoutes);
+app.use('/api/categories', authMiddleware, categoryRoutes);
+app.use('/api/borrowings', authMiddleware, borrowingRoutes);
+app.use('/api/dashboard', authMiddleware, dashboardRoutes);
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));

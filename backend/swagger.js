@@ -7,9 +7,19 @@ const options = {
     info: {
       title: 'BookNest API',
       version: '1.0.0',
-      description: 'API documentation for BookNest Smart Library and Reading Progress System'
+      description: 'API documentation for BookNest Smart Library and Reading Progress System with JWT authentication'
     },
-    servers: [{ url: 'http://localhost:3000' }]
+    servers: [{ url: 'http://localhost:3000' }],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
+    },
+    security: [{ bearerAuth: [] }]
   },
   apis: ['./backend/routes/*.js']
 };

@@ -2,21 +2,109 @@ const API = '';
 let books = [];
 let categories = [];
 let editingBookId = null;
+let token = '';
+let currentUser = null;
+localStorage.removeItem('booknestToken');
+localStorage.removeItem('booknestUser');
 
+const authSection = document.getElementById('authSection');
+const appSection = document.getElementById('appSection');
+const userInfo = document.getElementById('userInfo');
+const logoutBtn = document.getElementById('logoutBtn');
 const dashboard = document.getElementById('dashboard');
 const booksTable = document.getElementById('booksTable');
 const bookForm = document.getElementById('bookForm');
 const categoryForm = document.getElementById('categoryForm');
 const borrowingForm = document.getElementById('borrowingForm');
+const loginCard = document.getElementById('loginCard');
+const registerCard = document.getElementById('registerCard');
+const showRegisterBtn = document.getElementById('showRegisterBtn');
+const showLoginBtn = document.getElementById('showLoginBtn');
+
+function authHeaders() {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers.Authorization = 'Bearer ' + token;
+  return headers;
+}
 
 async function apiRequest(url, options = {}) {
   const response = await fetch(API + url, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders(),
     ...options
   });
   const data = await response.json();
-  if (!response.ok) throw new Error(data.error || 'Request failed');
+  if (!response.ok) {
+    if (response.status === 401) logout();
+    throw new Error(data.error || 'Request failed');
+  }
   return data;
+}
+
+function saveAuth(data) {
+  token = data.token;
+  currentUser = data.user;
+  showApp();
+}
+
+function logout() {
+  token = '';
+  currentUser = null;
+  localStorage.removeItem('booknestToken');
+  localStorage.removeItem('booknestUser');
+  clearAppState();
+  showAuth();
+}
+
+function showAuth() {
+  authSection.classList.remove('hidden');
+  appSection.classList.add('hidden');
+  logoutBtn.classList.add('hidden');
+  userInfo.textContent = '';
+  document.getElementById('loginForm').reset();
+  document.getElementById('registerForm').reset();
+  loginCard.classList.remove('hidden');
+  registerCard.classList.add('hidden');
+}
+
+function switchAuthView(view) {
+  document.getElementById('loginForm').reset();
+  document.getElementById('registerForm').reset();
+  if (view === 'register') {
+    loginCard.classList.add('hidden');
+    registerCard.classList.remove('hidden');
+  } else {
+    registerCard.classList.add('hidden');
+    loginCard.classList.remove('hidden');
+  }
+}
+
+function clearAppState() {
+  books = [];
+  categories = [];
+  editingBookId = null;
+  bookForm.reset();
+  categoryForm.reset();
+  borrowingForm.reset();
+  document.getElementById('currentPage').value = 0;
+  document.getElementById('search').value = '';
+  document.getElementById('filterCategory').innerHTML = '<option value="">All Categories</option>';
+  document.getElementById('filterStatus').value = '';
+  document.getElementById('filterPriority').value = '';
+  document.getElementById('categoryId').innerHTML = '<option value="">No Category</option>';
+  document.getElementById('borrowBookId').innerHTML = '<option value="">Choose book</option>';
+  document.getElementById('categoriesList').innerHTML = '';
+  document.getElementById('borrowingsList').innerHTML = '';
+  booksTable.innerHTML = '';
+  dashboard.innerHTML = '';
+}
+
+async function showApp() {
+  clearAppState();
+  authSection.classList.add('hidden');
+  appSection.classList.remove('hidden');
+  logoutBtn.classList.remove('hidden');
+  userInfo.textContent = currentUser ? `Logged in as ${currentUser.name}` : '';
+  await loadAll();
 }
 
 function calculateClientProgress(currentPage, totalPages) {
@@ -40,7 +128,8 @@ function validateBookForm() {
 }
 
 async function loadAll() {
-  await Promise.all([loadCategories(), loadBooks(), loadDashboard(), loadBorrowings()]);
+  await loadCategories();
+  await Promise.all([loadBooks(), loadDashboard(), loadBorrowings()]);
 }
 
 async function loadDashboard() {
@@ -135,6 +224,43 @@ async function loadBorrowings() {
     </div>
   `).join('');
 }
+
+document.getElementById('loginForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  try {
+    const data = await apiRequest('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: document.getElementById('loginEmail').value,
+        password: document.getElementById('loginPassword').value
+      })
+    });
+    saveAuth(data);
+  } catch (error) { alert(error.message); }
+});
+
+document.getElementById('registerForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  try {
+    const data = await apiRequest('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: document.getElementById('registerName').value,
+        email: document.getElementById('registerEmail').value,
+        password: document.getElementById('registerPassword').value
+      })
+    });
+    const registeredEmail = document.getElementById('registerEmail').value;
+    switchAuthView('login');
+    document.getElementById('loginEmail').value = registeredEmail;
+    document.getElementById('loginPassword').value = '';
+    alert('Account registered successfully. You can login now.');
+  } catch (error) { alert(error.message); }
+});
+
+showRegisterBtn.addEventListener('click', () => switchAuthView('register'));
+showLoginBtn.addEventListener('click', () => switchAuthView('login'));
+logoutBtn.addEventListener('click', logout);
 
 bookForm.addEventListener('submit', async event => {
   event.preventDefault();
@@ -249,4 +375,4 @@ async function deleteBorrowing(id) {
   document.getElementById(id).addEventListener('input', loadBooks);
 });
 
-loadAll();
+showAuth();

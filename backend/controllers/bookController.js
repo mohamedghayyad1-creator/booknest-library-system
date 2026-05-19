@@ -6,35 +6,35 @@ function handleError(res, error) {
 
 async function getBooks(req, res) {
   try {
-    const books = await bookService.getBooks(req.query);
+    const books = await bookService.getBooks(req.user.id, req.query);
     res.json(books);
   } catch (error) { handleError(res, error); }
 }
 
 async function getBook(req, res) {
   try {
-    const book = await bookService.getBook(req.params.id);
+    const book = await bookService.getBook(req.user.id, req.params.id);
     res.json(book);
   } catch (error) { handleError(res, error); }
 }
 
 async function createBook(req, res) {
   try {
-    const book = await bookService.createBook(req.body);
+    const book = await bookService.createBook(req.user.id, req.body);
     res.status(201).json(book);
   } catch (error) { handleError(res, error); }
 }
 
 async function updateBook(req, res) {
   try {
-    const book = await bookService.updateBook(req.params.id, req.body);
+    const book = await bookService.updateBook(req.user.id, req.params.id, req.body);
     res.json(book);
   } catch (error) { handleError(res, error); }
 }
 
 async function deleteBook(req, res) {
   try {
-    const result = await bookService.deleteBook(req.params.id);
+    const result = await bookService.deleteBook(req.user.id, req.params.id);
     res.json(result);
   } catch (error) { handleError(res, error); }
 }

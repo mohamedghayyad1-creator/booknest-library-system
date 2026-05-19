@@ -1,4 +1,5 @@
 const bookModel = require('../models/bookModel');
+const categoryModel = require('../models/categoryModel');
 const { calculateProgress, validateBookData } = require('../utils/bookLogic');
 
 function normalizeBookData(data) {
@@ -18,12 +19,22 @@ function normalizeBookData(data) {
   };
 }
 
-async function getBooks(filters) {
-  return bookModel.findAll(filters);
+async function validateCategoryOwnership(userId, categoryId) {
+  if (!categoryId) return;
+  const category = await categoryModel.findById(categoryId, userId);
+  if (!category) {
+    const error = new Error('Category not found for this user');
+    error.status = 400;
+    throw error;
+  }
 }
 
-async function getBook(id) {
-  const book = await bookModel.findById(id);
+async function getBooks(userId, filters) {
+  return bookModel.findAll(userId, filters);
+}
+
+async function getBook(userId, id) {
+  const book = await bookModel.findById(id, userId);
   if (!book) {
     const error = new Error('Book not found');
     error.status = 404;
@@ -32,7 +43,7 @@ async function getBook(id) {
   return book;
 }
 
-async function createBook(data) {
+async function createBook(userId, data) {
   const book = normalizeBookData(data);
   const errors = validateBookData(book);
   if (errors.length) {
@@ -40,12 +51,13 @@ async function createBook(data) {
     error.status = 400;
     throw error;
   }
+  await validateCategoryOwnership(userId, book.categoryId);
   book.progress = calculateProgress(book.currentPage, book.totalPages);
-  return bookModel.create(book);
+  return bookModel.create(userId, book);
 }
 
-async function updateBook(id, data) {
-  await getBook(id);
+async function updateBook(userId, id, data) {
+  await getBook(userId, id);
   const book = normalizeBookData(data);
   const errors = validateBookData(book);
   if (errors.length) {
@@ -53,13 +65,14 @@ async function updateBook(id, data) {
     error.status = 400;
     throw error;
   }
+  await validateCategoryOwnership(userId, book.categoryId);
   book.progress = calculateProgress(book.currentPage, book.totalPages);
-  return bookModel.update(id, book);
+  return bookModel.update(id, userId, book);
 }
 
-async function deleteBook(id) {
-  await getBook(id);
-  await bookModel.remove(id);
+async function deleteBook(userId, id) {
+  await getBook(userId, id);
+  await bookModel.remove(id, userId);
   return { message: 'Book deleted successfully' };
 }
 
